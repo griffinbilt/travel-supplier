@@ -17,6 +17,7 @@ export default function Home() {
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkInOutOpen, setCheckInOutOpen] = useState(false);
+  const [commissionFilter, setCommissionFilter] = useState<"all" | "commissionable" | "non-commissionable">("all");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const filtered = reservations.filter((r) => {
@@ -26,7 +27,11 @@ export default function Home() {
       r.guest.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.roomNo.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesCommission =
+      commissionFilter === "all" ||
+      (commissionFilter === "commissionable" && r.commissionable) ||
+      (commissionFilter === "non-commissionable" && !r.commissionable);
+    return matchesFilter && matchesSearch && matchesCommission;
   });
 
   return (
@@ -92,29 +97,52 @@ export default function Home() {
 
           {/* Search + Filters */}
           <div className="flex items-center justify-between mb-4">
-            <div className="relative">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a3a3a3]"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="7" cy="7" r="5" />
-                <path d="M11 11l3.5 3.5" />
-              </svg>
-              <input
-                ref={searchRef}
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2.5 border border-[#e5e5e5] rounded-xl text-[14px] w-[280px] focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-[#a3a3a3] transition-all"
-              />
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a3a3a3]"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="7" cy="7" r="5" />
+                  <path d="M11 11l3.5 3.5" />
+                </svg>
+                <input
+                  ref={searchRef}
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-2.5 border border-[#e5e5e5] rounded-xl text-[14px] w-[280px] focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-[#a3a3a3] transition-all"
+                />
+              </div>
+
+              {/* Commission toggle */}
+              <div className="flex items-center rounded-lg border border-[#e5e5e5] overflow-hidden">
+                {([
+                  { value: "all", label: "All" },
+                  { value: "commissionable", label: "Commissionable" },
+                  { value: "non-commissionable", label: "Non-commissioned" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setCommissionFilter(opt.value)}
+                    className={`px-3.5 py-2 text-[13px] font-medium transition-colors ${
+                      commissionFilter === opt.value
+                        ? "bg-black text-white"
+                        : "bg-white text-[#525252] hover:bg-[#f5f5f5]"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center gap-1.5">
