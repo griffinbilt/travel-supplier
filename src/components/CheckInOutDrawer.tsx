@@ -6,9 +6,10 @@ import { type Reservation, checkingInToday, checkingOutToday } from "@/lib/data"
 interface Props {
   open: boolean;
   onClose: () => void;
+  onModify?: (reservation: Reservation) => void;
 }
 
-export default function CheckInOutDrawer({ open, onClose }: Props) {
+export default function CheckInOutDrawer({ open, onClose, onModify }: Props) {
   const [visible, setVisible] = useState(false);
   const [tab, setTab] = useState<"in" | "out">("in");
   const [checkedIn, setCheckedIn] = useState<Set<number>>(new Set());
@@ -120,6 +121,10 @@ export default function CheckInOutDrawer({ open, onClose }: Props) {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      onClick={() => {
+                        handleClose();
+                        setTimeout(() => onModify?.(guest), 350);
+                      }}
                       className="px-3 py-2 rounded-xl text-[13px] font-medium text-[#525252] border border-[#e5e5e5] hover:bg-[#f5f5f5] transition-colors"
                     >
                       Modify

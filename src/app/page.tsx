@@ -14,6 +14,7 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkInOutOpen, setCheckInOutOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -208,9 +209,16 @@ export default function Home() {
         onClose={() => setSelectedReservation(null)}
       />
 
+      <ReservationDrawer
+        reservation={editingReservation}
+        editable
+        onClose={() => setEditingReservation(null)}
+      />
+
       <CheckInOutDrawer
         open={checkInOutOpen}
         onClose={() => setCheckInOutOpen(false)}
+        onModify={(r) => setEditingReservation(r)}
       />
     </div>
   );

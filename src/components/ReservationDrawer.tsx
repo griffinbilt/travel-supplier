@@ -5,25 +5,62 @@ import { type Reservation } from "@/lib/data";
 
 interface DrawerProps {
   reservation: Reservation | null;
+  editable?: boolean;
   onClose: () => void;
 }
 
-function Field({ label, value, className }: { label: string; value: string; className?: string }) {
+function Field({ label, value, className, editable, onChange }: {
+  label: string;
+  value: string;
+  className?: string;
+  editable?: boolean;
+  onChange?: (v: string) => void;
+}) {
   return (
-    <div className={`border border-[#e5e5e5] rounded-xl px-4 py-3 ${className || ""}`}>
+    <div className={`border border-[#e5e5e5] rounded-xl px-4 py-3 ${editable ? "focus-within:ring-2 focus-within:ring-black/10 focus-within:border-[#a3a3a3]" : ""} ${className || ""}`}>
       <div className="text-[11px] text-[#a3a3a3] mb-0.5">{label}</div>
-      <div className="text-[14px] font-medium">{value}</div>
+      {editable ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          className="text-[14px] font-medium w-full outline-none bg-transparent"
+        />
+      ) : (
+        <div className="text-[14px] font-medium">{value}</div>
+      )}
     </div>
   );
 }
 
-export default function ReservationDrawer({ reservation, onClose }: DrawerProps) {
+export default function ReservationDrawer({ reservation, editable = false, onClose }: DrawerProps) {
   const [visible, setVisible] = useState(false);
   const [commissionable, setCommissionable] = useState(true);
   const [notes, setNotes] = useState("");
 
+  // Editable field state
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("Jose");
+  const [lastName, setLastName] = useState("");
+  const [advisorFirst, setAdvisorFirst] = useState("Jane");
+  const [advisorLast, setAdvisorLast] = useState("Doe");
+  const [advisorEmail, setAdvisorEmail] = useState("jane.doe@example.com");
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
+  const [roomType, setRoomType] = useState("Suite");
+  const [baseFare, setBaseFare] = useState("$4,000.00");
+  const [taxes, setTaxes] = useState("$50.00");
+  const [fees, setFees] = useState("$0.00");
+  const [vatAmount, setVatAmount] = useState("$4,000.00");
+  const [saved, setSaved] = useState(false);
+
   useEffect(() => {
     if (reservation) {
+      setFirstName(reservation.guest.split(" ")[0]);
+      setLastName(reservation.guest.split(" ").slice(1).join(" ") || "Doe");
+      setCheckInDate(reservation.checkIn);
+      setCheckOutDate(reservation.checkOut);
+      setSaved(false);
       requestAnimationFrame(() => setVisible(true));
     }
   }, [reservation]);
@@ -33,10 +70,18 @@ export default function ReservationDrawer({ reservation, onClose }: DrawerProps)
     setTimeout(onClose, 300);
   };
 
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => {
+      handleClose();
+    }, 800);
+  };
+
   if (!reservation) return null;
 
-  const firstName = reservation.guest.split(" ")[0];
-  const lastName = reservation.guest.split(" ").slice(1).join(" ");
+  const isEdit = editable;
+  const title = isEdit ? "Modify reservation" : "New reservation";
+  const buttonText = saved ? "Saved!" : isEdit ? "Save changes" : "Create reservation";
 
   return (
     <>
@@ -59,9 +104,19 @@ export default function ReservationDrawer({ reservation, onClose }: DrawerProps)
               <path d="M12 4l-6 6 6 6" />
             </svg>
           </button>
-          <span className="text-[15px] font-semibold">New reservation</span>
+          <span className="text-[15px] font-semibold">{title}</span>
           <div className="w-8" />
         </div>
+
+        {/* Edit mode banner */}
+        {isEdit && (
+          <div className="px-6 py-3 bg-[#f0f9ff] border-b border-[#bae6fd] flex items-center gap-2 text-[13px] text-[#0369a1]">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11.5 2.5l2 2M4 10l7-7 2 2-7 7H4v-2z" />
+            </svg>
+            Editing reservation for {reservation.guest} &middot; Room {reservation.roomNo}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto drawer-scroll px-6 py-6">
@@ -97,53 +152,85 @@ export default function ReservationDrawer({ reservation, onClose }: DrawerProps)
             <Field label="External ID" value="AA2754" />
           </div>
 
-          <div className="border border-[#e5e5e5] rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
+          <div className={`border border-[#e5e5e5] rounded-xl px-4 py-3 mb-6 flex items-center gap-3 ${isEdit ? "focus-within:ring-2 focus-within:ring-black/10" : ""}`}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#737373" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="1" y="3" width="16" height="14" rx="2" />
               <path d="M1 7h16" />
               <path d="M5 1v4M13 1v4" />
             </svg>
-            <div>
+            <div className="flex-1">
               <div className="text-[11px] text-[#a3a3a3]">Dates</div>
-              <div className="text-[14px] font-medium">
-                {reservation.checkIn}, 2026 - {reservation.checkOut}, 2026
-              </div>
+              {isEdit ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
+                    className="text-[14px] font-medium outline-none bg-transparent w-20"
+                  />
+                  <span className="text-[14px] text-[#a3a3a3]">-</span>
+                  <input
+                    type="text"
+                    value={checkOutDate}
+                    onChange={(e) => setCheckOutDate(e.target.value)}
+                    className="text-[14px] font-medium outline-none bg-transparent w-20"
+                  />
+                  <span className="text-[14px] text-[#a3a3a3]">, 2026</span>
+                </div>
+              ) : (
+                <div className="text-[14px] font-medium">
+                  {checkInDate}, 2026 - {checkOutDate}, 2026
+                </div>
+              )}
             </div>
           </div>
 
           {/* Traveler */}
           <h3 className="text-[16px] font-semibold mb-4">Traveler</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <Field label="First name" value={firstName} />
-            <Field label="Middle name" value="Jose" />
+            <Field label="First name" value={firstName} editable={isEdit} onChange={setFirstName} />
+            <Field label="Middle name" value={middleName} editable={isEdit} onChange={setMiddleName} />
           </div>
-          <Field label="Last name" value={lastName || "Doe"} className="mb-6" />
+          <Field label="Last name" value={lastName} editable={isEdit} onChange={setLastName} className="mb-6" />
 
           {/* Advisor */}
           <h3 className="text-[16px] font-semibold mb-4">Advisor</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <Field label="First name" value="Jane" />
-            <Field label="Last name" value="Doe" />
+            <Field label="First name" value={advisorFirst} editable={isEdit} onChange={setAdvisorFirst} />
+            <Field label="Last name" value={advisorLast} editable={isEdit} onChange={setAdvisorLast} />
           </div>
-          <Field label="Email" value="jane.doe@example.com" className="mb-6" />
+          <Field label="Email" value={advisorEmail} editable={isEdit} onChange={setAdvisorEmail} className="mb-6" />
 
           {/* Pricing */}
           <h3 className="text-[16px] font-semibold mb-4">Pricing</h3>
 
           <div className="mb-3">
             <div className="text-[13px] font-medium mb-2">Room type</div>
-            <div className="border border-[#e5e5e5] rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fafafa] transition-colors">
-              <span className="text-[14px]">Suite</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#737373" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 6l4 4 4-4" />
-              </svg>
-            </div>
+            {isEdit ? (
+              <select
+                value={roomType}
+                onChange={(e) => setRoomType(e.target.value)}
+                className="w-full border border-[#e5e5e5] rounded-xl px-4 py-3 text-[14px] appearance-none bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option>Suite</option>
+                <option>Deluxe</option>
+                <option>Standard</option>
+                <option>Economy</option>
+              </select>
+            ) : (
+              <div className="border border-[#e5e5e5] rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#fafafa] transition-colors">
+                <span className="text-[14px]">{roomType}</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#737373" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 6l4 4 4-4" />
+                </svg>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-3">
-            <Field label="Base fare" value="$4,000.00" />
-            <Field label="Taxes" value="$50.00" />
-            <Field label="Fees" value="$0.00" />
+            <Field label="Base fare" value={baseFare} editable={isEdit} onChange={setBaseFare} />
+            <Field label="Taxes" value={taxes} editable={isEdit} onChange={setTaxes} />
+            <Field label="Fees" value={fees} editable={isEdit} onChange={setFees} />
           </div>
 
           {/* Commissionable */}
@@ -229,7 +316,7 @@ export default function ReservationDrawer({ reservation, onClose }: DrawerProps)
 
           {/* Value Add Tax */}
           <h3 className="text-[16px] font-semibold mb-4 mt-6">Value Add Tax</h3>
-          <Field label="Amount" value="$4,000.00" className="mb-2" />
+          <Field label="Amount" value={vatAmount} editable={isEdit} onChange={setVatAmount} className="mb-2" />
           <p className="text-[12px] text-[#a3a3a3] mb-6">100% of VAT will be passed on to the agency.</p>
 
           {/* Notes */}
@@ -256,8 +343,15 @@ export default function ReservationDrawer({ reservation, onClose }: DrawerProps)
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-[#e5e5e5]">
-          <button className="w-full bg-black text-white rounded-xl py-3.5 text-[14px] font-semibold hover:bg-[#262626] transition-colors">
-            Create reservation
+          <button
+            onClick={isEdit ? handleSave : undefined}
+            className={`w-full rounded-xl py-3.5 text-[14px] font-semibold transition-colors ${
+              saved
+                ? "bg-[#16a34a] text-white"
+                : "bg-black text-white hover:bg-[#262626]"
+            }`}
+          >
+            {buttonText}
           </button>
         </div>
       </div>
