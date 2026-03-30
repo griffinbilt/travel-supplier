@@ -1,2 +1,2 @@
-:HL["/_next/static/chunks/09xk2tru6~_mk.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"WDzG-Y_NNQY4GAbMa13Hs"}
+:HL["/travel-supplier/_next/static/chunks/10n0kfecy1m.k.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"FyntALqukAy6f3edkNkZ0"}
