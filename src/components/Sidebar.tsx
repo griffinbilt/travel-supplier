@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { name: "Dashboard", icon: "chart", href: "/dashboard" },
   { name: "Reservations", icon: "calendar", href: "/" },
-  { name: "Statements", icon: "document", href: "/statements" },
-  { name: "Transfers", icon: "transfer", href: "/transfers" },
+  { name: "Transfers", icon: "dollar", href: "/transfers" },
   { name: "Agencies", icon: "globe", href: "/agencies" },
 ];
 
@@ -36,11 +35,11 @@ function NavIcon({ type }: { type: string }) {
           <path d="M7 5h4M7 9h4M7 13h2" />
         </svg>
       );
-    case "transfer":
+    case "dollar":
       return (
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M1 6h14l-4-4" />
-          <path d="M17 12H3l4 4" />
+          <circle cx="9" cy="9" r="8" />
+          <path d="M9 4v10M6.5 7c0-1.1 1.1-2 2.5-2s2.5.9 2.5 2-1.1 2-2.5 2-2.5.9-2.5 2 1.1 2 2.5 2 2.5-.9 2.5-2" />
         </svg>
       );
     case "globe":
@@ -61,7 +60,6 @@ export default function Sidebar() {
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/" || pathname.startsWith("/new-reservation") || pathname.startsWith("/past-reservations");
-    if (href === "/statements") return pathname.startsWith("/statements");
     if (href === "/transfers") return pathname.startsWith("/transfers");
     if (href === "/agencies") return pathname.startsWith("/agencies");
     return pathname === href;
@@ -92,24 +90,6 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
-
-      {/* Bottom */}
-      <div className="px-3 pb-3">
-        <Link
-          href="/settings"
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors ${
-            pathname.startsWith("/settings")
-              ? "bg-white text-black shadow-sm"
-              : "text-[#525252] hover:bg-white/60"
-          }`}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="9" r="3" />
-            <path d="M9 1v2M9 15v2M1 9h2M15 9h2M3.2 3.2l1.4 1.4M13.4 13.4l1.4 1.4M3.2 14.8l1.4-1.4M13.4 4.6l1.4-1.4" />
-          </svg>
-          Settings
-        </Link>
-      </div>
 
       {/* User */}
       <div className="border-t border-[#e5e5e5] px-4 py-3 flex items-center gap-3">

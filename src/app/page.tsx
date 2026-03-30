@@ -17,7 +17,6 @@ export default function Home() {
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkInOutOpen, setCheckInOutOpen] = useState(false);
-  const [commissionFilter, setCommissionFilter] = useState<"all" | "commissionable" | "non-commissionable">("all");
   const searchRef = useRef<HTMLInputElement>(null);
 
   const filtered = reservations.filter((r) => {
@@ -27,11 +26,7 @@ export default function Home() {
       r.guest.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.roomNo.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCommission =
-      commissionFilter === "all" ||
-      (commissionFilter === "commissionable" && r.commissionable) ||
-      (commissionFilter === "non-commissionable" && !r.commissionable);
-    return matchesFilter && matchesSearch && matchesCommission;
+    return matchesFilter && matchesSearch;
   });
 
   return (
@@ -41,7 +36,7 @@ export default function Home() {
       <main className="flex-1 overflow-y-auto bg-white">
         <div className="max-w-[1200px] mx-auto px-8 py-8">
           {/* Action Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-3 gap-4 mb-10">
             <ActionCard
               icon={
                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -78,17 +73,7 @@ export default function Home() {
               }
               title="View past reservations"
               subtitle="1,564 bookings YTD"
-              highlight
               onClick={() => router.push("/past-reservations")}
-            />
-            <ActionCard
-              icon={
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 6v16M6 14h16" />
-                </svg>
-              }
-              title="Add new reservation"
-              onClick={() => router.push("/new-reservation")}
             />
           </div>
 
@@ -123,26 +108,6 @@ export default function Home() {
                 />
               </div>
 
-              {/* Commission toggle */}
-              <div className="flex items-center rounded-lg border border-[#e5e5e5] overflow-hidden">
-                {([
-                  { value: "all", label: "All" },
-                  { value: "commissionable", label: "Commissionable" },
-                  { value: "non-commissionable", label: "Non-commissioned" },
-                ] as const).map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setCommissionFilter(opt.value)}
-                    className={`px-3.5 py-2 text-[13px] font-medium transition-colors ${
-                      commissionFilter === opt.value
-                        ? "bg-black text-white"
-                        : "bg-white text-[#525252] hover:bg-[#f5f5f5]"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -173,7 +138,6 @@ export default function Home() {
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Check out</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Status</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Room No.</th>
-                  <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Commission</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Total</th>
                 </tr>
               </thead>
@@ -196,7 +160,6 @@ export default function Home() {
                       <td className="px-5 py-4 text-[14px]">{r.checkOut}</td>
                       <td className="px-5 py-4 text-[14px]">{r.status}</td>
                       <td className="px-5 py-4 text-[14px]">{r.roomNo}</td>
-                      <td className="px-5 py-4 text-[14px]">{r.commission}</td>
                       <td className="px-5 py-4 text-[14px]">{r.total}</td>
                     </tr>
                   );
@@ -256,27 +219,23 @@ function ActionCard({
   icon,
   title,
   subtitle,
-  highlight,
   onClick,
 }: {
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
-  highlight?: boolean;
   onClick?: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center p-6 rounded-2xl border text-center transition-colors ${
-        highlight
-          ? "bg-[#f9f8f0] border-[#e8e5d4] hover:bg-[#f5f3e8]"
-          : "bg-white border-[#e5e5e5] hover:bg-[#fafafa]"
-      }`}
+      className="flex flex-col items-start justify-between p-6 rounded-2xl text-left transition-colors min-h-[140px] bg-[#f0f0f0] hover:bg-[#e8e8e8]"
     >
-      <div className="mb-3 text-[#525252]">{icon}</div>
-      <div className="text-[14px] font-semibold mb-0.5">{title}</div>
-      {subtitle && <div className="text-[12px] text-[#a3a3a3]">{subtitle}</div>}
+      <div className="text-[#525252]">{icon}</div>
+      <div>
+        <div className="text-[14px] font-semibold mb-0.5">{title}</div>
+        {subtitle && <div className="text-[12px] text-[#a3a3a3]">{subtitle}</div>}
+      </div>
     </button>
   );
 }
