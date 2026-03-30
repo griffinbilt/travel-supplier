@@ -182,7 +182,20 @@ export default function Home() {
                       <td className="px-5 py-4 text-[14px]">{r.checkOut}</td>
                       <td className="px-5 py-4 text-[14px]">{r.status}</td>
                       <td className="px-5 py-4 text-[14px]">{r.roomNo}</td>
-                      <td className="px-5 py-4 text-[14px]">{r.total}</td>
+                      <td className="px-5 py-4 text-[14px]">
+                        <span className="flex items-center gap-1.5">
+                          {r.total}
+                          {r.credit && !isCancelled && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                              r.credit.applied
+                                ? "bg-[#dcfce7] text-[#15803d]"
+                                : "bg-[#ede9fe] text-[#6d28d9]"
+                            }`}>
+                              {r.credit.applied ? `$${r.credit.amount} applied` : `$${r.credit.amount} credit`}
+                            </span>
+                          )}
+                        </span>
+                      </td>
                     </tr>
                   );
                 })}

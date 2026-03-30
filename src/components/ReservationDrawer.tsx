@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { type Reservation } from "@/lib/data";
+import { type Reservation, type RestaurantCredit } from "@/lib/data";
 
 interface DrawerProps {
   reservation: Reservation | null;
@@ -52,6 +52,7 @@ export default function ReservationDrawer({ reservation, editable = false, onClo
   const [taxes, setTaxes] = useState("$50.00");
   const [fees, setFees] = useState("$0.00");
   const [vatAmount, setVatAmount] = useState("$4,000.00");
+  const [credit, setCredit] = useState<RestaurantCredit | null>(null);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function ReservationDrawer({ reservation, editable = false, onClo
       setLastName(reservation.guest.split(" ").slice(1).join(" ") || "Doe");
       setCheckInDate(reservation.checkIn);
       setCheckOutDate(reservation.checkOut);
+      setCredit(reservation.credit ? { ...reservation.credit } : null);
       setSaved(false);
       requestAnimationFrame(() => setVisible(true));
     }
@@ -232,6 +234,52 @@ export default function ReservationDrawer({ reservation, editable = false, onClo
             <Field label="Taxes" value={taxes} editable={isEdit} onChange={setTaxes} />
             <Field label="Fees" value={fees} editable={isEdit} onChange={setFees} />
           </div>
+
+          {/* Restaurant Credit */}
+          {credit && (
+            <div className={`border rounded-xl p-4 mb-3 ${credit.applied ? "border-[#bbf7d0] bg-[#f0fdf4]" : "border-[#c4b5fd] bg-[#f5f3ff]"}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={credit.applied ? "#16a34a" : "#7c3aed"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 5h14M2 9h14M5 13h8" />
+                  <circle cx="14" cy="13" r="3" />
+                  <path d="M13 13h2M14 12v2" />
+                </svg>
+                <span className="text-[14px] font-semibold">Restaurant credit</span>
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                  credit.applied
+                    ? "bg-[#dcfce7] text-[#15803d]"
+                    : "bg-[#ede9fe] text-[#6d28d9]"
+                }`}>
+                  {credit.applied ? "Applied" : "Available"}
+                </span>
+              </div>
+              <p className="text-[12px] text-[#737373] mb-3">
+                Booked via {reservation.source} through Bilt &mdash; guest is eligible for a ${credit.amount}.00 restaurant credit.
+              </p>
+
+              <div className="flex items-center justify-between border border-[#e5e5e5] bg-white rounded-xl px-4 py-3">
+                <div>
+                  <div className="text-[11px] text-[#a3a3a3]">Credit amount</div>
+                  <div className="text-[18px] font-semibold">${credit.amount}.00</div>
+                </div>
+                {credit.applied ? (
+                  <div className="flex items-center gap-1.5 text-[13px] text-[#16a34a] font-medium">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 8.5l3.5 3.5L13 5" />
+                    </svg>
+                    Applied to booking
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setCredit({ ...credit, applied: true })}
+                    className="px-4 py-2 bg-[#7c3aed] text-white text-[13px] font-semibold rounded-xl hover:bg-[#6d28d9] transition-colors"
+                  >
+                    Apply to booking
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Commissionable */}
           <div className="border border-[#e5e5e5] rounded-xl p-4 mb-3">
