@@ -19,6 +19,8 @@ export default function Home() {
   const [checkInOutOpen, setCheckInOutOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
+  const PAGE_SIZE = 10;
+
   const filtered = reservations.filter((r) => {
     const matchesFilter = activeFilter === "All" || r.status === activeFilter;
     const matchesSearch =
@@ -28,6 +30,19 @@ export default function Home() {
       r.roomNo.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Reset to page 1 when filter/search changes
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setCurrentPage(1);
+  };
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="flex h-full">
@@ -103,7 +118,7 @@ export default function Home() {
                   type="text"
                   placeholder="Search"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-9 pr-4 py-2.5 border border-[#e5e5e5] rounded-xl text-[14px] w-[280px] focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-[#a3a3a3] transition-all"
                 />
               </div>
@@ -114,7 +129,7 @@ export default function Home() {
               {statusFilters.map((filter) => (
                 <button
                   key={filter}
-                  onClick={() => setActiveFilter(filter)}
+                  onClick={() => handleFilterChange(filter)}
                   className={`px-4 py-2 rounded-full text-[13px] font-medium transition-colors border ${
                     activeFilter === filter
                       ? "bg-black text-white border-black"
@@ -142,7 +157,7 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r) => {
+                {paged.map((r) => {
                   const isCancelled = r.status === "Cancelled";
                   return (
                     <tr
@@ -152,7 +167,14 @@ export default function Home() {
                         isCancelled ? "text-[#c4c4c4]" : ""
                       }`}
                     >
-                      <td className={`px-5 py-4 text-[14px] ${isCancelled ? "" : "font-medium"}`}>{r.guest}</td>
+                      <td className={`px-5 py-4 text-[14px] ${isCancelled ? "" : "font-medium"}`}>
+                        <span className="flex items-center gap-2">
+                          {r.guest}
+                          {r.vip && (
+                            <span className="vip-badge">VIP</span>
+                          )}
+                        </span>
+                      </td>
                       <td className="px-5 py-4">
                         <span className={`badge ${isCancelled ? "opacity-50" : ""}`}>{r.source}</span>
                       </td>
@@ -170,26 +192,31 @@ export default function Home() {
 
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
-            <span className="text-[13px] text-[#737373]">Page {currentPage} of 10</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10 4l-4 4 4 4" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setCurrentPage(Math.min(10, currentPage + 1))}
-                disabled={currentPage === 10}
-                className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 4l4 4-4 4" />
-                </svg>
-              </button>
+            <span className="text-[13px] text-[#737373]">
+              Showing {Math.min(filtered.length, (currentPage - 1) * PAGE_SIZE + 1)}–{Math.min(filtered.length, currentPage * PAGE_SIZE)} of {filtered.length}
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-[13px] text-[#737373]">Page {currentPage} of {totalPages}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 4l-4 4 4 4" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f5] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 4l4 4-4 4" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>

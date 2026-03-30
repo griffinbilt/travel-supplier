@@ -112,6 +112,7 @@ export default function CheckInOutDrawer({ open, onClose, onModify }: Props) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                       <span className="text-[14px] font-medium">{guest.guest}</span>
+                      {guest.vip && <span className="vip-badge">VIP</span>}
                       <span className="badge">{guest.source}</span>
                     </div>
                     <div className="flex items-center gap-4 text-[13px] text-[#737373]">
