@@ -10,6 +10,10 @@ const navItems = [
   { name: "Agencies", icon: "globe", href: "/agencies" },
 ];
 
+const bottomNavItems = [
+  { name: "Settings", icon: "settings", href: "/settings" },
+];
+
 function NavIcon({ type }: { type: string }) {
   switch (type) {
     case "chart":
@@ -50,6 +54,13 @@ function NavIcon({ type }: { type: string }) {
           <path d="M9 1c2.2 2.6 3.4 5.6 3.4 8s-1.2 5.4-3.4 8c-2.2-2.6-3.4-5.6-3.4-8s1.2-5.4 3.4-8z" />
         </svg>
       );
+    case "settings":
+      return (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="9" cy="9" r="2.5" />
+          <path d="M7.6 1.5h2.8l.4 2.1a5.5 5.5 0 011.4.8l2-.8 1.4 2.4-1.6 1.3a5.6 5.6 0 010 1.6l1.6 1.3-1.4 2.4-2-.8a5.5 5.5 0 01-1.4.8l-.4 2.1H7.6l-.4-2.1a5.5 5.5 0 01-1.4-.8l-2 .8-1.4-2.4 1.6-1.3a5.6 5.6 0 010-1.6L2.4 6l1.4-2.4 2 .8a5.5 5.5 0 011.4-.8l.4-2.1z" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -62,6 +73,7 @@ export default function Sidebar() {
     if (href === "/") return pathname === "/" || pathname.startsWith("/new-reservation") || pathname.startsWith("/past-reservations");
     if (href === "/transfers") return pathname.startsWith("/transfers");
     if (href === "/agencies") return pathname.startsWith("/agencies");
+    if (href === "/settings") return pathname.startsWith("/settings");
     return pathname === href;
   };
 
@@ -76,6 +88,24 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-3">
         {navItems.map((item) => (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors ${
+              isActive(item.href)
+                ? "bg-white text-black shadow-sm"
+                : "text-[#525252] hover:bg-white/60"
+            }`}
+          >
+            <NavIcon type={item.icon} />
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Bottom Nav */}
+      <nav className="px-3 pb-2">
+        {bottomNavItems.map((item) => (
           <Link
             key={item.name}
             href={item.href}
