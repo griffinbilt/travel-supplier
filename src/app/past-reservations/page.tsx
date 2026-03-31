@@ -23,6 +23,7 @@ export default function PastReservations() {
       searchQuery === "" ||
       r.guest.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.rate.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.roomNo.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -111,6 +112,7 @@ export default function PastReservations() {
                 <tr className="border-b border-[#e5e5e5] bg-white">
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Guest</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Source</th>
+                  <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Rate</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Check in</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Check out</th>
                   <th className="text-left px-5 py-3 text-[13px] font-medium text-[#737373]">Status</th>
@@ -138,6 +140,9 @@ export default function PastReservations() {
                       </td>
                       <td className="px-5 py-4">
                         <span className={`badge ${isCancelled ? "opacity-50" : ""}`}>{r.source}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`badge ${isCancelled ? "opacity-50" : ""}`}>{r.rate}</span>
                       </td>
                       <td className={`px-5 py-4 text-[14px] ${!isCancelled ? "font-medium" : ""}`}>{r.checkIn}</td>
                       <td className="px-5 py-4 text-[14px]">{r.checkOut}</td>

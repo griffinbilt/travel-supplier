@@ -254,7 +254,7 @@ export default function ReservationDrawer({ reservation, editable = false, onClo
                 </span>
               </div>
               <p className="text-[12px] text-[#737373] mb-3">
-                Booked via {reservation.source} through Bilt &mdash; guest is eligible for a ${credit.amount}.00 restaurant credit.
+                Booked via {reservation.rate} through Bilt &mdash; guest is eligible for a ${credit.amount}.00 restaurant credit.
               </p>
 
               <div className="flex items-center justify-between border border-[#e5e5e5] bg-white rounded-xl px-4 py-3">
